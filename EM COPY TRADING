@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Enhanced Copy Trading</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#0f172a;color:#e2e8f0}
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.login-container{background:#1e293b;border-radius:12px;padding:2rem;max-width:400px;width:100%;border:1px solid #334155}
+.login-header{text-align:center;margin-bottom:2rem}
+.login-header h1{font-size:1.8rem;background:linear-gradient(90deg,#8b5cf6,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.form-group{margin-bottom:1.5rem}
+.form-group input{width:100%;padding:0.8rem;background:#0f172a;border:1px solid #475569;border-radius:8px;color:white}
+.btn-login{width:100%;padding:1rem;background:#7c3aed;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:1rem}
+.dashboard-page{display:none}
+.header{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:#1e293b;border-bottom:1px solid #334155}
+.logo{display:flex;align-items:center;gap:10px}
+.logo h1{font-size:1.3rem;background:linear-gradient(90deg,#8b5cf6,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.balance{background:#1e293b;padding:0.5rem 1rem;border-radius:8px;border:1px solid #475569}
+.balance p{color:#10b981;font-weight:bold}
+.sidebar{width:220px;background:#1e293b;padding:1.5rem;border-right:1px solid #334155}
+.nav-menu{list-style:none;margin-top:1rem}
+.nav-menu a{display:flex;align-items:center;gap:10px;padding:0.7rem;color:#cbd5e1;text-decoration:none;border-radius:8px}
+.nav-menu a.active{background:rgba(124,58,237,0.2);color:#a78bfa}
+.main-content{flex:1;padding:1.5rem}
+.welcome-banner{background:linear-gradient(90deg,#1e293b,#0f172a);padding:1.5rem;border-radius:12px;margin-bottom:1.5rem;border:1px solid #475569}
+.stats-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
+.card{background:#1e293b;padding:1.2rem;border-radius:10px;border:1px solid #334155}
+.card-value{font-size:1.5rem;font-weight:bold;margin:0.5rem 0}
+.traders-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem}
+.trader-card{background:#1e293b;padding:1.2rem;border-radius:10px;border:1px solid #334155}
+.trader-stats{display:flex;justify-content:space-between;margin:1rem 0}
+.btn-copy{width:100%;padding:0.7rem;background:rgba(124,58,237,0.1);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);border-radius:8px;cursor:pointer}
+.market-table{width:100%;background:#1e293b;border-radius:10px;overflow:hidden;border:1px solid #334155}
+.market-table th,.market-table td{padding:1rem;text-align:left;border-bottom:1px solid #334155}
+.price-up{color:#10b981}
+.price-down{color:#ef4444}
+.footer{text-align:center;margin-top:3rem;padding-top:1rem;border-top:1px solid #334155;color:#64748b;font-size:0.8rem}
+.deposit-page{display:none}
+.deposit-card{background:#1e293b;border-radius:12px;padding:2rem;border:1px solid #334155}
+.wallet-address{background:#0f172a;border:1px solid #475569;padding:1rem;border-radius:8px;font-family:monospace;word-break:break-all;display:flex;justify-content:space-between;align-items:center}
+.copy-btn{background:#7c3aed;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer}
+.qr-code{width:200px;height:200px;background:white;padding:10px;border-radius:10px;margin:1rem auto;display:flex;align-items:center;justify-content:center;color:#0f172a}
+.info-box{background:rgba(124,58,237,0.1);border-left:4px solid #7c3aed;padding:1rem;margin:1rem 0;border-radius:6px}
+.btn-group{display:flex;gap:1rem;margin-top:2rem}
+.btn{flex:1;padding:1rem;border-radius:8px;border:none;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:#7c3aed;color:white}
+.btn-secondary{background:#334155;color:#e2e8f0}
+.logout-btn{background:#334155;color:#e2e8f0;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer;margin-left:1rem}
+.deposit-btn{background:#7c3aed;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer;margin-left:1rem}
+.dashboard{display:flex;min-height:calc(100vh - 70px)}
+@media (max-width:768px){
+.sidebar{width:60px;padding:1rem 0.5rem}
+.nav-menu a span{display:none}
+.stats-cards,.traders-grid{grid-template-columns:1fr}
+.header{flex-direction:column;gap:1rem}
+}
+</style>
+</head>
+<body>
+<!-- Login Page -->
+<div class="login-page" id="loginPage">
+<div class="login-container">
+<div class="login-header"><i class="fas fa-chart-network fa-2x" style="color:#8b5cf6;margin-bottom:1rem"></i>
+<h1>Enhanced Copy Trading</h1><p style="color:#94a3b8">AI-Powered Trading Platform</p></div>
+<form id="loginForm">
+<div class="form-group"><input type="email" id="email" placeholder="Email" required></div>
+<div class="form-group"><input type="password" id="password" placeholder="Password" required></div>
+<button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login</button>
+<div style="background:rgba(124,58,237,0.1);padding:1rem;border-radius:8px;margin-top:1.5rem;font-size:0.9rem">
+<p><strong>Demo:</strong> demo@enhancedcopy.com / demo1234</p></div>
+</form></div></div>
+
+<!-- Dashboard Page -->
+<div class="dashboard-page" id="dashboardPage">
+<header class="header"><div class="logo"><i class="fas fa-chart-network" style="color:#8b5cf6"></i>
+<h1>Enhanced Copy Trading</h1></div>
+<div style="display:flex;align-items:center;gap:1rem">
+<div class="balance"><small>Balance</small><p>$18,642</p></div>
+<div class="balance"><small>Today's P/L</small><p style="color:#10b981">+$428</p></div>
+<button class="deposit-btn" onclick="showDepositPage()"><i class="fas fa-wallet"></i> Deposit</button>
+<button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</div></header>
+<div class="dashboard"><nav class="sidebar"><ul class="nav-menu">
+<li><a href="#" class="active"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+<li><a href="#"><i class="fas fa-copy"></i> <span>My Copies</span></a></li>
+<li><a href="#"><i class="fas fa-robot"></i> <span>AI Signals</span></a></li>
+<li><a href="#" onclick="showDepositPage()"><i class="fas fa-wallet"></i> <span>Wallet</span></a></li>
+<li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+</ul></nav>
+<main class="main-content"><section class="welcome-banner">
+<h2>Welcome back, <span id="userName">John</span>!</h2>
+<p style="color:#94a3b8;margin-top:0.5rem">Copying 4 traders with 7 active trades</p>
+</section>
+<div class="stats-cards"><div class="card"><small>Portfolio Value</small>
+<div class="card-value">$18,642</div><small style="color:#10b981">+3.2% today</small></div>
+<div class="card"><small>Active Copies</small><div class="card-value">4 Traders</div>
+<small>7 Open Trades</small></div>
+<div class="card"><small>Monthly Return</small><div class="card-value">+12.7%</div>
+<small style="color:#10b981">+$1,842</small></div>
+<div class="card"><small>AI Confidence</small><div class="card-value">89.4%</div>
+<small style="color:#10b981">Strong Signals</small></div></div>
+<h3 style="margin-bottom:1rem">Top Performing Traders</h3>
+<div class="traders-grid"><div class="trader-card">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+<div style="width:40px;height:40px;background:#7c3aed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold">FX</div>
+<div><h4>QuantumFX Pro</h4><small style="color:#94a3b8">Gold & Forex</small></div></div>
+<div class="trader-stats"><div><strong style="color:#10b981">+45.8%</strong><br><small>Monthly ROI</small></div>
+<div><strong>92%</strong><br><small>Win Rate</small></div>
+<div><strong>487</strong><br><small>Copiers</small></div></div>
+<button class="btn-copy"><i class="fas fa-copy"></i> Copy</button></div>
+<div class="trader-card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+<div style="width:40px;height:40px;background:#f59e0b;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold">GS</div>
+<div><h4>Gold Sentinel</h4><small style="color:#94a3b8">XAU/USD Expert</small></div></div>
+<div class="trader-stats"><div><strong style="color:#10b981">+38.2%</strong><br><small>Monthly ROI</small></div>
+<div><strong>85%</strong><br><small>Win Rate</small></div>
+<div><strong>312</strong><br><small>Copiers</small></div></div>
+<button class="btn-copy"><i class="fas fa-copy"></i> Copy</button></div></div>
+<h3 style="margin:1.5rem 0 1rem 0">Live Market</h3>
+<table class="market-table"><thead><tr><th>Instrument</th><th>Price</th><th>Change</th><th>Action</th></tr></thead>
+<tbody><tr><td><strong>EUR/USD</strong><br><small>Forex</small></td><td>1.0958</td>
+<td class="price-up">+0.42%</td><td><button style="padding:0.4rem 0.8rem;background:rgba(124,58,237,0.1);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);border-radius:6px;cursor:pointer">Trade</button></td></tr>
+<tr><td><strong>XAU/USD</strong><br><small>Gold</small></td><td>2,387.45</td>
+<td class="price-up">+1.85%</td><td><button style="padding:0.4rem 0.8rem;background:rgba(124,58,237,0.1);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);border-radius:6px;cursor:pointer">Trade</button></td></tr>
+<tr><td><strong>AAPL</strong><br><small>Apple</small></td><td>182.34</td>
+<td class="price-down">-0.32%</td><td><button style="padding:0.4rem 0.8rem;background:rgba(124,58,237,0.1);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);border-radius:6px;cursor:pointer">Trade</button></td></tr></tbody></table>
+<div class="footer"><p>Enhanced Copy Trading © 2023</p>
+<p style="margin-top:0.5rem"><i class="fas fa-exclamation-circle"></i> Trading involves risk</p></div>
+</main></div></div>
+
+<!-- Deposit Page -->
+<div class="deposit-page" id="depositPage">
+<header class="header"><div class="logo"><i class="fas fa-chart-network" style="color:#8b5cf6"></i>
+<h1>Enhanced Copy Trading</h1></div>
+<button class="logout-btn" onclick="showDashboard()"><i class="fas fa-arrow-left"></i> Back</button></header>
+<div style="max-width:500px;margin:2rem auto;padding:0 1rem"><div class="deposit-card">
+<div style="text-align:center;margin-bottom:2rem"><h2>Deposit USDT (TRC20)</h2>
+<p style="color:#94a3b8">Send USDT via TRON network</p></div>
+<div style="margin:2rem 0"><label style="display:block;color:#94a3b8;margin-bottom:0.5rem">Deposit Address:</label>
+<div class="wallet-address"><span id="walletText">THK9zzvDwfoQ7biExSpvyTfFthqrbbj4Sg</span>
+<button class="copy-btn" onclick="copyWallet()"><i class="far fa-copy"></i> Copy</button></div></div>
+<div style="text-align:center;margin:2rem 0"><p style="color:#94a3b8;margin-bottom:1rem">QR Code:</p>
+<div class="qr-code" id="qrCode"><div style="text-align:center">
+<div style="margin-bottom:10px">QR Code</div><small>For demo only</small></div></div></div>
+<div class="info-box"><p><i class="fas fa-info-circle"></i> <strong>Min:</strong> $50 USDT</p>
+<p><strong>Network:</strong> TRON (TRC20) only</p><p><strong>Time:</strong> 1-3 confirmations</p></div>
+<div class="info-box" style="background:rgba(245,158,11,0.1);border-left-color:#f59e0b">
+<p><i class="fas fa-exclamation-triangle"></i> Send ONLY USDT on TRC20</p>
+<p>Do not send other cryptocurrencies</p><p>Have TRX for fees</p></div>
+<div class="info-box"><p><i class="fas fa-check-circle"></i> Auto-credited after 3 confirmations</p></div>
+<div class="btn-group"><button class="btn btn-secondary" onclick="showDashboard()">
+<i class="fas fa-arrow-left"></i> Back</button>
+<button class="btn btn-primary" onclick="showConfirmation()">
+<i class="fas fa-check"></i> I Sent USDT</button></div></div>
+<div style="text-align:center;margin-top:3rem;padding-top:1rem;border-top:1px solid #334155;color:#64748b;font-size:0.8rem">
+<p>Enhanced Copy Trading © 2023</p><p style="margin-top:0.5rem">
+<i class="fas fa-exclamation-circle"></i> Support: support@enhancedcopytrading.com</p></div></div></div>
+
+<script>
+// Check login
+window.onload=function(){if(localStorage.getItem('isLoggedIn')==='true'){showDashboard()}}
+// Login form
+document.getElementById('loginForm').addEventListener('submit',function(e){
+e.preventDefault();const email=document.getElementById('email').value
+const password=document.getElementById('password').value
+if((email==='demo@enhancedcopy.com'&&password==='demo1234')||(email&&password)){
+localStorage.setItem('isLoggedIn','true');localStorage.setItem('userEmail',email)
+const username=email.split('@')[0]
+document.getElementById('userName').textContent=username.charAt(0).toUpperCase()+username.slice(1)
+showDashboard()}})
+// Show dashboard
+function showDashboard(){document.getElementById('loginPage').style.display='none'
+document.getElementById('dashboardPage').style.display='block'
+document.getElementById('depositPage').style.display='none'}
+// Show deposit
+function showDepositPage(){document.getElementById('loginPage').style.display='none'
+document.getElementById('dashboardPage').style.display='none'
+document.getElementById('depositPage').style.display='block'}
+// Logout
+function logout(){localStorage.removeItem('isLoggedIn');localStorage.removeItem('userEmail')
+document.getElementById('loginPage').style.display='flex'
+document.getElementById('dashboardPage').style.display='none'
+document.getElementById('depositPage').style.display='none'
+document.getElementById('loginForm').reset()}
+// Copy wallet
+function copyWallet(){const walletText=document.getElementById('walletText').textContent
+navigator.clipboard.writeText(walletText).then(()=>{
+const btn=document.querySelector('.copy-btn');const original=btn.innerHTML
+btn.innerHTML='<i class="fas fa-check"></i> Copied!';btn.style.background='#10b981'
+setTimeout(()=>{btn.innerHTML=original;btn.style.background=''},2000)})}
+// Deposit confirmation
+function showConfirmation(){alert('Deposit noted! Will appear after blockchain confirmation (2-5 mins).')
+showDashboard()}
+// Initialize
+document.addEventListener('DOMContentLoaded',function(){
+// Copy buttons
+document.querySelectorAll('.btn-copy').forEach(button=>{
+button.addEventListener('click',function(){const original=this.innerHTML
+this.innerHTML='<i class="fas fa-check"></i> Copied!'
+this.style.background='rgba(16,185,129,0.1)';this.style.color='#10b981'
+setTimeout(()=>{this.innerHTML=original;this.style.background='';this.style.color=''},2000)})})
+// Update prices
+setInterval(()=>{document.querySelectorAll('.market-table td:nth-child(2)').forEach(cell=>{
+const current=parseFloat(cell.textContent.replace(',',''))
+const change=(Math.random()-0.5)*0.5
+cell.textContent=(current*(1+change/100)).toFixed(2)
+const changeCell=cell.nextElementSibling
+changeCell.textContent=(change>=0?'+':'')+change.toFixed(2)+'%'
+changeCell.className=change>=0?'price-up':'price-down'})},10000)
+// QR code
+const qrDiv=document.getElementById('qrCode')
+qrDiv.innerHTML=`<div style="text-align:center;padding:10px">
+<div style="font-family:monospace;font-size:0.7rem;margin-bottom:10px;word-break:break-all">
+THK9zzvDwfoQ7biExSpvyTfFthqrbbj4Sg</div>
+<div style="display:grid;grid-template-columns:repeat(21,8px);gap:1px;margin:0 auto;width:fit-content">
+${Array(441).fill().map((_,i)=>`<div style="width:8px;height:8px;background:${Math.random()>0.5?'#000':'#fff'}"></div>`).join('')}
+</div><div style="margin-top:10px;font-size:0.8rem;color:#666">USDT TRC20</div></div>`})
+</script>
+</body>
+</html>
